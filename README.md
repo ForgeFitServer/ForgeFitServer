@@ -2,11 +2,19 @@
 
 A minimal, self-hosted, open-source fitness tracking server with workout planning, exercise library, and progress analytics.
 
-![Example1](examples/1.png)
-![Example2](examples/2.png)
-![Example3](examples/3.png)
-![Example4](examples/4.png)
-![Example5](examples/5.png)
+<div align="center">
+<table>
+<tr>
+<td align="center"><img src="examples/1.png" alt="Home" width="230"><br><sub><b>Home</b></sub></td>
+<td align="center"><img src="examples/2.png" alt="Workout" width="230"><br><sub><b>Menu Options</b></sub></td>
+<td align="center"><img src="examples/3.png" alt="Stats" width="230"><br><sub><b>Stats</b></sub></td>
+<td align="center"><img src="examples/4.png" alt="Workout" width="230"><br><sub><b>Workout</b></sub></td>
+<td align="center"><img src="examples/5.png" alt="Coach" width="230"><br><sub><b>Coach</b></sub></td>
+</tr>
+</table>
+</div>
+
+
 
 **FFS** is designed for:
 - Personal fitness tracking and workout planning
