@@ -4,19 +4,12 @@ import { t } from '../lib/i18n.js'
 
 const W = 340   // viewBox width; the svg stretches to its container, height comes from `h`
 
-// points: [{ t: ms, y: num, d?: iso }] sorted by t. opts: { h, unit, color, axes, goal }
 export default function LineChart({ points, h = 150, unit = '', color = 'var(--acc)', axes = true, goal = null }) {
   const svgRef = useRef(null)
   const wrapRef = useRef(null)
   const tipRef = useRef(null)
   const [hover, setHover] = useState(null)   // { x, y, iso, v }
 
-  // The tooltip is placed after layout, from its measured size, because the chart
-  // lives in an overflow-clipped box: a fixed half-width offset (what this used to
-  // do) hangs the label off the edge on the first and last point, and the clip then
-  // eats it. Reading offsetWidth here also covers translated labels, which are not
-  // all the same length. Writing straight to the node's style keeps this off the
-  // render path — hover fires on every mouse move.
   useLayoutEffect(() => {
     const tip = tipRef.current, wrap = wrapRef.current
     if (!hover || !tip || !wrap) return
@@ -25,8 +18,6 @@ export default function LineChart({ points, h = 150, unit = '', color = 'var(--a
     const M = 4                                   // breathing room against the clip
     const cx = hover.x / W * cw, cy = hover.y / h * ch
     tip.style.left = Math.max(M, Math.min(cw - tw - M, cx - tw / 2)) + 'px'
-    // Parked at the top, but dropped below the point when the point sits high
-    // enough that the label would cover the very value it is reporting.
     tip.style.top = (cy < th + 14 ? Math.min(ch - th - M, cy + 14) : M) + 'px'
   })
 

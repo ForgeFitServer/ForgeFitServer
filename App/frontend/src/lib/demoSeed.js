@@ -1,6 +1,6 @@
 import { isoOf, uid } from './format.js'
 
-// Deterministic PRNG — the demo should look the same on every visit and in screenshots.
+// Deterministic PRNG for consistent demo data across page reloads
 function rng(seed) {
   let a = seed >>> 0
   return () => {
@@ -11,10 +11,12 @@ function rng(seed) {
   }
 }
 
+// Round weight to nearest step (e.g., 2.5 lb increments)
 const round = (w, step) => Math.round(w / step) * step
+// Create timestamp at specific hour:minute
 const at = (date, h, m) => { const d = new Date(date); d.setHours(h, m, 0, 0); return d.getTime() }
 
-// Real exercises from user backup — grouped by movement pattern
+// Push day exercises (chest, shoulders, triceps)
 const PUSH_EXERCISES = [
   { id: '0025', name: 'barbell bench press', sets: 4, baseReps: 8 },      // compound: heavy
   { id: '0047', name: 'barbell incline bench press', sets: 3, baseReps: 10 },
@@ -22,6 +24,7 @@ const PUSH_EXERCISES = [
   { id: '0308', name: 'dumbbell fly', sets: 3, baseReps: 15 },
 ]
 
+// Pull day exercises (back, rear delts, biceps)
 const PULL_EXERCISES = [
   { id: '0032', name: 'barbell deadlift', sets: 3, baseReps: 5 },         // compound: heavy
   { id: '0203', name: 'cable rear delt row (with rope)', sets: 4, baseReps: 10 },
@@ -29,6 +32,7 @@ const PULL_EXERCISES = [
   { id: '0293', name: 'dumbbell bent over row', sets: 3, baseReps: 12 },   // accessory volume
 ]
 
+// Shoulder/leg exercises (isolated upper body work)
 const SHOULDER_EXERCISES = [
   { id: '0405', name: 'dumbbell seated shoulder press', sets: 3, baseReps: 10 },   // main compound
   { id: '0334', name: 'dumbbell lateral raise', sets: 3, baseReps: 12 },          // isolation
@@ -36,6 +40,7 @@ const SHOULDER_EXERCISES = [
   { id: '2137', name: 'dumbbell arnold press', sets: 3, baseReps: 10 },
 ]
 
+// Arm exercises (biceps and triceps compounds)
 const ARM_EXERCISES = [
   { id: '1646', name: 'dumbbell alternate hammer preacher curl', sets: 3, baseReps: 10 },    // biceps
   { id: '0447', name: 'ez barbell curl', sets: 3, baseReps: 10 },

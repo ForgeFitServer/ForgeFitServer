@@ -2,23 +2,24 @@
 import { todayISO, isoOf, weekKey, fmtNum } from './format.js'
 import { isCardio } from './exercises.js'
 
-// Set summary: cardio shows time/speed, strength shows weight×reps with optional RPE
+// Format a set for display (e.g., "185×5 (8/10)" for strength, "20 min @ 9.2 km/h" for cardio)
 export function setLabel(id, s) {
   if (isCardio(id)) return `${s.min || 0} min @ ${fmtNum(s.speed || 0)} km/h`
   const base = `${fmtNum(s.w || 0)}×${s.r || 0}`
   return s.rpe ? `${base} (${s.rpe}/10)` : base
 }
-// Default config for a freshly added exercise.
+// Default targets for new exercise entries (strength vs cardio)
 export function defaultConfig(id) {
   return isCardio(id) ? { sets: 1, min: 20, speed: 8 } : { sets: 3, reps: 10, weight: 0 }
 }
-// Drop superset ids that no longer have an adjacent partner (after unlink/reorder/remove).
+// Remove superset IDs that have lost their adjacent partner
 export function cleanupSg(ex) {
   ex.forEach((e, i) => {
     if (e.sg && !(ex[i - 1]?.sg === e.sg || ex[i + 1]?.sg === e.sg)) delete e.sg
   })
 }
 
+// Find the last completed set for an exercise (for auto-populating next workout)
 export function lastEntryFor(S, exId) {
   for (let i = S.workouts.length - 1; i >= 0; i--) {
     const en = S.workouts[i].entries.find(e => e.id === exId)
@@ -26,6 +27,7 @@ export function lastEntryFor(S, exId) {
   }
   return null
 }
+// Find personal record (heaviest weight lifted) for an exercise
 export function bestWeightFor(S, exId) {
   let best = 0
   S.workouts.forEach(w => w.entries.forEach(e => {
@@ -36,6 +38,7 @@ export function bestWeightFor(S, exId) {
   }))
   return best
 }
+// Get routine ID scheduled for a specific date (respects overrides in dayPlan)
 export function effectiveRoutineId(S, iso) {
   const ov = S.dayPlan[iso]
   if (ov === 'rest') return null
@@ -43,10 +46,12 @@ export function effectiveRoutineId(S, iso) {
   const wd = new Date(iso + 'T12:00:00').getDay()
   return S.week[wd] || null
 }
+// Get full routine object for a date
 export function effectiveRoutine(S, iso) {
   const id = effectiveRoutineId(S, iso)
   return id ? S.routines.find(r => r.id === id) || null : null
 }
+// Create initial sets for a new exercise entry (copies previous weights/RPE if available)
 export function buildSets(S, cfg) {
   const last = lastEntryFor(S, cfg.id)
   // Per-set targets from coach plan take priority
@@ -73,11 +78,13 @@ export function buildSets(S, cfg) {
   }
   return sets
 }
+// Calculate total training volume (weight × reps) for a workout
 export function workoutVolume(w) {
   let v = 0
   w.entries.forEach(e => e.sets.forEach(s => { if (s.done) v += (s.w || 0) * (s.r || 0) }))
   return v
 }
+// Count completed sets in a workout
 export function setsDone(w) {
   let n = 0
   w.entries.forEach(e => e.sets.forEach(s => { if (s.done) n++ }))
@@ -90,7 +97,6 @@ export function setsDoneActive(A) {
 }
 export const lastBW = S => (S.bodyweight.length ? S.bodyweight[S.bodyweight.length - 1] : null)
 
-// Group consecutive items with matching superset id into units (indices array).
 export function supersetUnits(items) {
   const units = []
   items.forEach((e, i) => {

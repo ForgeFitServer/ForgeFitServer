@@ -1,4 +1,3 @@
-// Web Push: subscribe/unsubscribe (stored server-side per user)
 import { api } from './api.js'
 
 export const pushSupported = () => 'serviceWorker' in navigator && 'PushManager' in window && 'Notification' in window

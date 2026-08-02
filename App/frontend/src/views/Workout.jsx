@@ -14,7 +14,7 @@ import Icon from '../components/Icon.jsx'
 import { Button, Check, NumberField } from '../components/ui.jsx'
 import { glyphOf } from '../lib/glyphs.js'
 
-/* ---------- start chooser (no active workout) ---------- */
+// Routine selection UI (when no active workout)
 function StartChooser() {
   const nav = useNavigate()
   const S = useStore(s => s.S)
@@ -42,7 +42,7 @@ function StartChooser() {
   </div>
 }
 
-/* ---------- elapsed clock (isolated so the workout tree doesn't re-render every second) ---------- */
+// Real-time elapsed timer (isolated to prevent unnecessary re-renders)
 function Elapsed({ start }) {
   const [t, setT] = useState('0:00')
   useEffect(() => {
@@ -52,7 +52,7 @@ function Elapsed({ start }) {
   return <span>{t}</span>
 }
 
-/* ---------- one exercise block (strength: weight×reps · cardio: duration+speed) ---------- */
+// Single exercise with sets grid (strength: weight×reps; cardio: duration×speed, with optional RPE)
 function ExerciseBlock({ entryIdx, compact, onToggle, onField, onBumpAll, onAddSet, onRemoveSet }) {
   const S = useStore(s => s.S)
   const update = useStore(s => s.update)
@@ -67,8 +67,7 @@ function ExerciseBlock({ entryIdx, compact, onToggle, onField, onBumpAll, onAddS
   const col2 = cardio ? { f: 'speed', step: 0.5, dec: true, hd: t('Speed (km/h)') } : { f: 'r', step: 1, dec: false, hd: t('Reps') }
   const trackRpe = !cardio && (entry.trackRpe ?? entry.target.trackRpe)
   const col3 = trackRpe ? { f: 'rpe', step: 1, dec: false, hd: t('RPE (1-10)') } : null
-  // Uses the shared stepper markup so a set row picks up the same control styling
-  // as every other +/- field in the app.
+  // Reusable stepper control for weight/reps/RPE (consistent +/- styling across app)
   const cell = (s, i, col, cls) => {
     if (col.f === 'rpe') {
       return (
@@ -119,7 +118,7 @@ function ExerciseBlock({ entryIdx, compact, onToggle, onField, onBumpAll, onAddS
   </>
 }
 
-/* ---------- active workout ---------- */
+// Main workout session UI
 function ActiveWorkout() {
   const nav = useNavigate()
   const S = useStore(s => s.S)

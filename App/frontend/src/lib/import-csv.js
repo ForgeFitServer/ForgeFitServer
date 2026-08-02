@@ -1,9 +1,3 @@
-// Import training history from FitNotes, Strong, Hevy, or Apple Health
-// Maps column headers to fields rather than fixed positions for flexibility
-//
-// Verified: FitNotes, Strong, Hevy (column-based)
-// Also: Lyfta, spreadsheet exports, Apple Health (XML body-weight only)
-
 import { EXDB, EXIDX } from './exercises.js'
 import { uid } from './format.js'
 
@@ -37,8 +31,6 @@ export function parseCSV(text) {
 
 const norm = h => h.toLowerCase().replace(/[^a-z0-9]+/g, ' ').trim()
 
-// Map header text to field we care about (specific names first, first match wins)
-const COLUMNS = [
   ['exercise', ['exercise', 'exercise name', 'exercise title']],
   ['date', ['date', 'workout date']],
   ['startTime', ['start time']],
@@ -83,10 +75,6 @@ export function detectSource(header) {
 
 /* ------------------------------------------------------ exercise matching -- */
 
-// Other apps bolt qualifiers onto names — Hevy writes "Leg Press (Machine)", Strong
-// "Snatch (Barbell)", FitNotes "Lat Pulldown (Pulley)" — while the dataset writes
-// "barbell snatch". Strip the parentheses, expand the shorthand, then compare as a
-// sorted bag of words so word order stops mattering.
 const SYN = [
   [/\bbb\b/g, 'barbell'], [/\bdb\b/g, 'dumbbell'], [/\bkb\b/g, 'kettlebell'],
   [/\bohp\b/g, 'overhead press'], [/\bbw\b/g, 'body weight'], [/\bbodyweight\b/g, 'body weight'],
@@ -96,7 +84,6 @@ const SYN = [
   [/\bcurls?\b/g, 'curl'], [/\bpresses\b/g, 'press'], [/\bextensions?\b/g, 'extension'],
   [/\bcables?\b/g, 'cable'], [/\bseated\b/g, 'seated'], [/\bassisted\b/g, 'assisted'],
 ]
-// Words that say nothing about which exercise this is, so they shouldn't stop a match.
 const FILLER = new Set(['the', 'a', 'with', 'and', 'v', 'variation', 'version', 'pulley', 'weighted'])
 
 function wordsOf(name) {
@@ -124,15 +111,6 @@ function buildIndex() {
   return INDEX
 }
 
-// Curated: the names people actually log, mapped by hand to the dataset id they mean.
-//
-// Other apps let you name a lift "Bench Press"; the dataset only has qualified names
-// like "barbell bench press". Word-overlap alone can't resolve that — "bench press" sits
-// inside thirty-three entries — and where it *is* unique it tends to be wrong, happily
-// resolving "Squat" to "weighted squat" and "Leg Press" to "smith leg press". So the
-// common vocabulary is spelled out. The convention is that an unqualified name means the
-// canonical barbell version, which is what these apps assume when they show it to you.
-// Extending this table is the intended way to improve import accuracy.
 const ALIAS_EX = {
   'bench press': '0025', 'barbell bench press': '0025', 'flat bench press': '0025',
   'incline bench press': '0047', 'decline bench press': '0033',
@@ -198,7 +176,6 @@ export function matchExercise(name) {
   return ties === 1 ? best : null
 }
 
-// Categories the exporters use -> the dataset's body parts, for exercises we invent.
 const CATEGORY_BP = {
   chest: 'chest', back: 'back', lats: 'back', shoulders: 'shoulders', delts: 'shoulders',
   legs: 'upper legs', quads: 'upper legs', hamstrings: 'upper legs', glutes: 'upper legs',

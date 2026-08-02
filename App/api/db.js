@@ -1,25 +1,35 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
-/* SQLite storage layer: users, creds, state, push subscriptions, invites, questionnaires */
+// SQLite database: users, credentials, state, subscriptions, invites, questionnaires
 import { DatabaseSync } from 'node:sqlite';
 import fs from 'node:fs';
 import path from 'node:path';
 
+// JSON serialization helper
 const j = v => JSON.stringify(v);
-// Row mappers (preserve camelCase field names)
+// Map database rows to client objects (convert snake_case to camelCase, parse JSON)
 const mapUser = r => r && {
   id: r.id, name: r.name, created: r.created,
   admin: !!r.admin, coach: !!r.coach, disabled: !!r.disabled,
   invitedBy: r.invited_by || undefined, lastReminder: r.last_reminder || undefined
 };
+// Map passkey credentials from database
 const mapCred = r => r && { id: r.id, userId: r.user_id, publicKey: r.public_key, counter: r.counter, transports: JSON.parse(r.transports || '[]') };
+// Map push subscriptions
 const mapSub = r => r && { userId: r.user_id, endpoint: r.endpoint, keys: JSON.parse(r.keys), created: r.created };
+// Map user invites (for registration)
 const mapInvite = r => r && { code: r.code, note: r.note || '', createdBy: r.created_by, created: r.created, usedBy: r.used_by || undefined, usedAt: r.used_at || undefined };
+// Map coach invite codes (for trainee onboarding)
 const mapCoachInvite = r => r && { code: r.code, createdBy: r.created_by, created: r.created, usedBy: r.used_by || undefined, usedAt: r.used_at || undefined };
+// Map questionnaire definitions
 const mapQuestionnaire = r => r && { id: r.id, coachId: r.coach_id, title: r.title, description: r.description, fields: JSON.parse(r.fields || '[]'), isDefault: !!r.is_default, created: r.created, updated: r.updated };
+// Map questionnaire assignments to users
 const mapAssignment = r => r && { id: r.id, questionnaireId: r.questionnaire_id, assignedToUserId: r.assigned_to_user_id, assignedByCoachId: r.assigned_by_coach_id, required: !!r.required, created: r.created, completedAt: r.completed_at || undefined, title: r.title, fields: r.fields ? JSON.parse(r.fields) : [] };
+// Map questionnaire responses from users
 const mapResponse = r => r && { id: r.id, assignmentId: r.assignment_id, responses: JSON.parse(r.responses || '{}'), completedAt: r.completed_at };
+// Map saved routine/program templates
 const mapTemplate = r => r && { id: r.id, coachId: r.coach_id, name: r.name, data: JSON.parse(r.data || '{}'), created: r.created, updated: r.updated };
 
+// Initialize database with schema and return API object
 export function openDb(DATA) {
   const db = new DatabaseSync(path.join(DATA, 'gym.db'));
   db.exec(`

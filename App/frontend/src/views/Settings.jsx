@@ -49,6 +49,7 @@ export default function Settings() {
     rd.readAsDataURL(f)
   }
 
+  // Export all user data as JSON backup (includes workouts with RPE)
   const doExport = async () => {
     // Format export data
     const exportData = {
@@ -81,6 +82,7 @@ export default function Settings() {
         exercises: (w?.entries || []).map(e => ({
           exerciseName: e?.name || EXDB[e?.id]?.n || null,
           exerciseId: e?.id || null,
+          // Each set includes reps, weight, and RPE (if tracked)
           sets: (e?.sets || []).map(set => ({
             reps: set?.r || 0,
             weight: set?.w || null,
@@ -123,10 +125,10 @@ export default function Settings() {
         coach: p?.coach || '',
         dayIds: p?.dayIds || []
       }))
-    }
+    })
     const json = JSON.stringify(exportData, null, 2)
     const name = 'ffs-backup-' + todayISO() + '.json'
-    // Mobile: use share sheet for blob URLs
+    // Mobile uses OS share sheet; desktop downloads file
     if (MOBILE) {
       try { await shareExport(json, name); toast(t('Backup exported')) } catch (e) { /* share sheet dismissed */ }
       return

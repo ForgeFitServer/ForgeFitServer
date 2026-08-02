@@ -1,27 +1,10 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
-// Forge Fitness Server control set.
-//
-// Every input in the app is built here rather than styled on top of a native
-// widget. Native controls are the single loudest "unfinished" tell: a checkbox
-// renders blue on iOS and grey on Android, a range slider paints its own white
-// track that no theme reaches, and a <select> opens a system list that ignores
-// dark mode entirely. Rebuilding them means one visual language and one focus
-// treatment across every platform.
-//
-// Shared rules:
-//   · every control is driven by (value, onChange) — no internal source of truth
-//   · hit targets are ≥44px even when the painted control is smaller
-//   · :active gives a scale/tint response so touch feels acknowledged
-//   · focus-visible draws a ring; pointer interaction never does
 
 import { useRef, useState, useEffect, useCallback, forwardRef } from 'react'
 import Icon from './Icon.jsx'
 
 /* ============================ text ============================ */
 
-// Numeric input accepting "," as decimal separator — iOS decimal keypads in many
-// locales only offer a comma, and type="number" reports "" for it (value snaps to
-// 0). Keeps a local string draft while focused so partial input like "33," survives.
 export function NumberField({ value, onChange, decimal = true, className = '', ...rest }) {
   const [draft, setDraft] = useState(null)
   const committed = useRef(null)
@@ -49,7 +32,6 @@ export function NumberField({ value, onChange, decimal = true, className = '', .
   )
 }
 
-// forwardRef so callers can focus it or read its value imperatively
 export const TextField = forwardRef(function TextField({ className = '', ...rest }, ref) {
   return <input ref={ref} className={'field ' + className} {...rest} />
 })
@@ -90,7 +72,6 @@ export function Switch({ checked, onChange, disabled }) {
 
 /* ============================ segmented ============================ */
 
-// options: [{ value, label, icon? }]  — the selected pill slides between cells.
 export function Segmented({ options, value, onChange, className = '' }) {
   const i = Math.max(0, options.findIndex(o => o.value === value))
   return (
@@ -131,9 +112,6 @@ export function Stepper({ value, step = 1, onChange, decimal = true, className =
 
 /* ============================ slider ============================ */
 
-// Pointer-driven so the fill, track and thumb are all ours — no ::-webkit-*
-// pseudo-elements, which is the only way the control looks identical on every
-// platform and can pick up the accent colour.
 export function Slider({ value, min = 0, max = 100, step = 1, onChange, className = '' }) {
   const ref = useRef(null)
   const [drag, setDrag] = useState(false)
@@ -210,9 +188,6 @@ export function Check({ checked, onChange, className = '', size }) {
 
 /* ============================ grouped list ============================ */
 
-// The inset-grouped list is the app's main structural primitive: a titled
-// section holding rows separated by hairlines that stop short of the leading
-// edge, so the icon column reads as a continuous rail.
 export function Section({ title, footer, children, className = '' }) {
   return (
     <section className={'sect ' + className}>
@@ -242,10 +217,6 @@ export function Row({ icon, iconTint, leftNode, title, subtitle, value, accessor
 
 /* ============================ picker ============================ */
 
-// Replaces <select>. A native select opens a system list that ignores the app's
-// theme entirely — on dark mode it flashes a white sheet — and can't show more
-// than a bare label per option. This opens our own sheet with a checkmark on the
-// current value, which is also how iOS itself handles a long option list.
 export function SelectRow({ icon, iconTint, title, value, options, onChange, sheetTitle }) {
   const cur = options.find(o => o.value === value)
   const open = () => {
@@ -272,8 +243,6 @@ export function SelectRow({ icon, iconTint, title, value, options, onChange, she
   )
 }
 
-// Late import keeps this module free of a cycle at load time (useUI pulls in the
-// store, which pulls in helpers that import controls).
 let _ui = null
 export function bindUI(store) { _ui = store }
 function require_ui() {

@@ -1,10 +1,6 @@
-// Which muscles an exercise trains — data behind the muscle map
-// Exercise dataset uses inconsistent spelling (shoulders/deltoids/delts, quads/quadriceps, etc.)
-// Nineteen spellings collapse to eighteen drawable muscles via ALIAS
 
 import { EXIDX } from './exercises.js'
 
-// Muscles the map can shade (head-to-toe order)
 export const MUSCLES = [
   'trapezius', 'deltoids', 'chest', 'upper-back', 'serratus',
   'biceps', 'triceps', 'forearm',
@@ -13,10 +9,8 @@ export const MUSCLES = [
   'calves', 'tibialis',
 ]
 
-// Drawn as the silhouette, never shaded: they carry no training load.
 export const INERT = ['head', 'hair', 'neck', 'hands', 'feet', 'knees', 'ankles']
 
-// English display names; these strings are the i18n keys (see lib/i18n.js).
 export const MUSCLE_NAME = {
   trapezius: 'Traps', deltoids: 'Shoulders', chest: 'Chest', 'upper-back': 'Upper back',
   serratus: 'Serratus', biceps: 'Biceps', triceps: 'Triceps', forearm: 'Forearms',
@@ -25,7 +19,6 @@ export const MUSCLE_NAME = {
   'hip-flexors': 'Hip flexors', calves: 'Calves', tibialis: 'Shins',
 }
 
-// Every spelling that occurs in the dataset's `tg` and `sm` fields. null = not drawable.
 const ALIAS = {
   // primaries
   abs: 'abs', pectorals: 'chest', biceps: 'biceps', glutes: 'gluteal', delts: 'deltoids',
@@ -46,7 +39,6 @@ const ALIAS = {
   sternocleidomastoid: null,
 }
 
-// Custom exercises use body part fallback with weight distribution
 const BY_BODYPART = {
   chest: { chest: 1 },
   back: { 'upper-back': 0.75, 'lower-back': 0.25 },

@@ -1,4 +1,3 @@
-// WebAudio beeps + haptics (ported from the vanilla app). `enabled` gates sound.
 let audioCtx = null
 export function beep(enabled, freq, dur, when) {
   if (!enabled) return

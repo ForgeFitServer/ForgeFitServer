@@ -1,17 +1,3 @@
-// Forge Fitness Server icon set — hand-drawn on a 24×24 grid, stroke-based, single weight.
-//
-// Everything is one <svg> primitive with `currentColor`, so an icon inherits the
-// text colour and optical size of whatever it sits in. No emoji anywhere in the
-// chrome: emoji render differently on every platform, sit on their own baseline
-// and can't take a theme colour, which is what made the old UI feel assembled
-// rather than designed.
-//
-// Conventions, so a new icon never looks foreign next to an old one:
-//   · 24×24 viewBox, live area 3…21 — 3px of optical padding all round
-//   · strokes only (no fills) except where a shape reads better solid (star.fill)
-//   · round caps + round joins, stroke width from --icon-stroke (1.7 default)
-//   · geometry snapped to .5 so it lands on pixel edges at 24px
-
 const P = {
   /* ---- navigation ---- */
   house: <path d="M3.5 10.7 12 3.8l8.5 6.9M5.9 9.4V19a1.4 1.4 0 0 0 1.4 1.4h9.4A1.4 1.4 0 0 0 18.1 19V9.4" />,
@@ -113,7 +99,6 @@ const P = {
   info: <><circle cx="12" cy="12" r="8.2" /><path d="M12 11v5.4" /><circle cx="12" cy="7.9" r=".9" fill="currentColor" stroke="none" /></>,
 }
 
-// A few keys are aliases so call sites can say what they mean.
 P.search = P.magnifier
 P.settings = P.gear
 P.exercises = P.magnifier

@@ -1,4 +1,3 @@
-// SPDX-License-Identifier: AGPL-3.0-or-later
 import { useEffect } from 'react'
 import { HashRouter, Routes, Route, Navigate, useNavigate, useLocation } from 'react-router-dom'
 import { useStore } from './store/useStore.js'
@@ -25,8 +24,10 @@ import Settings from './views/Settings.jsx'
 import Admin from './views/Admin.jsx'
 import { Coach, CoachTrainee } from './views/Coach.jsx'
 
-bindUI(useUI)   // lets the shared controls open sheets without importing the store at module scope
+// Wire UI layer to store so modals can dispatch actions
+bindUI(useUI)
 
+// Apply theme + accent color from user preferences
 function applyPrefs(theme, accent) {
   const de = document.documentElement
   de.dataset.theme = theme === 'light' ? 'light' : 'dark'
@@ -40,15 +41,17 @@ function Shell() {
   const loc = useLocation()
   const { S, user, ready } = useStore()
   const isGuest = useStore(s => s.isGuest())
-  const langV = useLang()   // re-renders the whole shell when the language (pack) changes
+  // Trigger re-render when language pack changes (used for date formatting, etc.)
+  const langV = useLang()
   useEffect(() => { setNav(navigate) }, [navigate])
   useEffect(() => { applyPrefs(S.theme, S.accent) }, [S.theme, S.accent])
   useEffect(() => { setLang(S.lang || 'en') }, [S.lang])
   useEffect(() => { document.documentElement.lang = S.lang || 'en' }, [langV, S.lang])
-  // every tab/route change starts at the top of the page
+  // Scroll to top on route change
   useEffect(() => { window.scrollTo(0, 0) }, [loc.pathname])
 
   const authed = user || isGuest
+  // Show loading splash while booting
   if (!ready && !authed) return (
     <div id="app">
       <div style={{ paddingTop: '44vh', display: 'flex', justifyContent: 'center', fontSize: 34, color: 'var(--label-3)' }}>
@@ -57,7 +60,7 @@ function Shell() {
     </div>
   )
 
-  // Coach & Admin are operator surfaces — give them the full desktop width.
+  // Coach & Admin surfaces use full width (not mobile-first layout)
   const isWide = /^\/(coach|admin)/.test(loc.pathname)
 
   return (

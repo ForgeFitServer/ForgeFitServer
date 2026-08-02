@@ -2,17 +2,14 @@ import { useEffect, useRef, useState } from 'react'
 import { fmtVol, isoOf, todayISO, MONTHS } from '../lib/format.js'
 import { t } from '../lib/i18n.js'
 
-// GitHub-style activity heatmap, shaded by time trained per day.
 export default function Heatmap({ S, onDay }) {
   const wrapRef = useRef(null)
   const [scrollOffset, setScrollOffset] = useState(0)
   
-  // 3 months ≈ 12 weeks; each week = 14px + 3px gap = 17px per column
   const monthScrollDistance = 12 * 17 // ~204px per 3-month scroll
   
   useEffect(() => { 
     if (wrapRef.current) {
-      // Scroll by the offset amount (can go positive or negative)
       wrapRef.current.scrollLeft = Math.max(0, scrollOffset * monthScrollDistance)
     }
   }, [scrollOffset])
@@ -31,7 +28,6 @@ export default function Heatmap({ S, onDay }) {
   const today = new Date(); today.setHours(12, 0, 0, 0)
   const end = new Date(today); end.setDate(today.getDate() - ((today.getDay() + 6) % 7))
   
-  // Find earliest workout to calculate weeks needed (shows all history, not just 12 months)
   let earliestDate = new Date(end)
   if (S.workouts.length > 0) {
     const oldest = S.workouts.reduce((min, w) => {

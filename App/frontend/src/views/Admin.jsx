@@ -11,8 +11,6 @@ import Avatar from '../components/Avatar.jsx'
 import { Button } from '../components/ui.jsx'
 
 // Admin-only operator dashboard (owner passkey + admin flag; guarded again server-side).
-// Deliberately English-only — it isn't part of the translated end-user surface, so it stays
-// out of the per-language string packs.
 
 const rel = ts => {
   if (!ts) return 'never'

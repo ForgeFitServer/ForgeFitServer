@@ -1,6 +1,5 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
-/* Forge Fitness Server API — passkey (WebAuthn) auth + per-user state storage
-   No framework, JSON-file storage, signed session cookies.               */
+// Forge Fitness Server: WebAuthn passkey + password auth, per-user state sync, push notifications
 import http from 'node:http';
 import crypto from 'node:crypto';
 import fs from 'node:fs';
@@ -18,30 +17,19 @@ const RP_ID = process.env.RP_ID || 'localhost';
 const ORIGIN = process.env.ORIGIN || 'http://localhost:8080';
 const RP_NAME = process.env.RP_NAME || 'Forge Fitness Server';
 const BRAND_NAME = process.env.BRAND_NAME || RP_NAME;
-// AUTH_MODE controls which login methods are available: 'passkey', 'password', or 'all' (both).
-// Users need only ONE method to sign in. Default 'all' enables passkeys + passwords together.
-// Set via environment on the API container; the frontend reads it from GET /api/config.
 const AUTH_MODE = (process.env.AUTH_MODE || 'all').toLowerCase();
 const PASSKEY_ON = AUTH_MODE === 'passkey' || AUTH_MODE === 'all' || AUTH_MODE === 'both';
 const PASSWORD_ON = AUTH_MODE === 'password' || AUTH_MODE === 'all' || AUTH_MODE === 'both';
-// Admin dashboard (issue): admins are matched by uid; INVITE_ONLY gates new signups behind a
-// code the admin generates. Both default off so a fresh self-hosted instance stays open.
 const ADMIN_UIDS = (process.env.ADMIN_UIDS || '').split(',').map(s => s.trim()).filter(Boolean);
 const INVITE_ONLY = /^(1|true|yes|on)$/i.test(process.env.INVITE_ONLY || '');
 const SESSION_DAYS = 365;
 const MAX_BODY = 20 * 1024 * 1024;
-// Secure cookies require HTTPS; over plain http://localhost the flag would drop the cookie
 const SECURE = /^https:/i.test(ORIGIN) ? ' Secure;' : '';
 
 fs.mkdirSync(DATA, { recursive: true });
 
-/* ---------- secret + db ---------- */
-// SESSION_SECRET may be set via environment (docker-compose default provided).
-// If not set — or left as the shipped example value — a random secret is generated
-// at startup so sessions can never be forged with a publicly-known key. Sessions then
-// survive restarts only when a strong, stable SESSION_SECRET is provided.
+// Load or generate session signing secret
 const DEFAULT_SECRET = 'change-me-to-a-long-random-string';
-const _rawSecret = (process.env.SESSION_SECRET || '').trim();
 if (_rawSecret === DEFAULT_SECRET || (_rawSecret && _rawSecret.length < 16)) {
   console.warn('\u26a0  SESSION_SECRET is weak or unset — using a random per-boot secret. Set a long, random SESSION_SECRET to keep users signed in across restarts.');
 }
@@ -49,17 +37,12 @@ const SECRET = (_rawSecret && _rawSecret !== DEFAULT_SECRET && _rawSecret.length
   ? _rawSecret
   : crypto.randomBytes(32).toString('hex');
 
-// SQLite storage ΓÇö users, passkeys, per-user state, push subs, admin invites, coach invites.
-// Migrates the old db.json / state-*.json on first run (see db.js).
 const store = openDb(DATA);
-const isAdmin = user => !!user && (user.admin === true || ADMIN_UIDS.includes(user.id));
 const isCoach = user => !!user && user.coach === true;
-// Thin shim so state-reading code (reminders, admin) stays unchanged.
 const readState = uid => store.getState(uid)?.state || null;
 
-/* ---------- single-use coach invite codes (10 chars, no ambiguous glyphs) ---------- */
+// Generate unique coach invite codes (unambiguous alphanumeric)
 const COACH_ALPH = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
-function newCoachInvite(coachId) {
   for (let i = 0; i < 8; i++) {
     let code = ''; const b = crypto.randomBytes(10);
     for (let k = 0; k < 10; k++) code += COACH_ALPH[b[k] % COACH_ALPH.length];
@@ -67,21 +50,21 @@ function newCoachInvite(coachId) {
   }
   throw new Error('could not allocate coach invite code');
 }
-/* ---------- short unique id helper (questionnaires, assignments, responses) ---------- */
+// Base64url ID generator (shorter than UUID, still collision-resistant)
 const uid = () => crypto.randomBytes(9).toString('base64url');
-// Best-effort: assign the default registration questionnaire to a new user. Attributed to
-// the questionnaire's owning coach (FK requires a real user id). Never blocks signup.
+// Automatically assign coach's default questionnaire to new trainees
 function autoAssignDefaultQuestionnaire(userId) {
   const defQ = store.getDefaultQuestionnaire();
   if (!defQ || !defQ.coachId) return;
   try { store.assignQuestionnaire('qa' + uid(), defQ.id, userId, defQ.coachId, true); }
   catch (e) { console.warn('could not auto-assign default questionnaire:', e.message); }
 }
-/* ---------- password auth (scrypt via built-in crypto — zero extra deps) ---------- */
+// Password hashing with scrypt (no external crypto deps)
 const pwHash = pwd => {
   const salt = crypto.randomBytes(16).toString('hex');
   return salt + ':' + crypto.scryptSync(pwd, salt, 64).toString('hex');
 };
+// Time-safe password verification to prevent timing attacks
 const pwVerify = (pwd, stored) => {
   if (!stored || typeof stored !== 'string') return false;
   const [salt, key] = stored.split(':');
@@ -89,12 +72,11 @@ const pwVerify = (pwd, stored) => {
     return crypto.timingSafeEqual(crypto.scryptSync(pwd, salt, 64), Buffer.from(key, 'hex'));
   } catch { return false; }
 };
-// Pre-computed dummy hash: ensures scrypt always runs on login (prevents user-enumeration timing attacks).
-// Do this once at startup (not on every failed login) to avoid spending startup time on every server restart.
 const PW_DUMMY = (() => { const s = '0'.repeat(32); return s + ':' + crypto.scryptSync('', s, 64).toString('hex'); })();
 
-const RL_WIN = 15 * 60 * 1000; // rate limit window: 15 minutes
-const _rl = new Map(); // ip -> { count, resetAt }
+// Rate limiting: max 5 attempts per 15-minute window per IP
+const RL_WIN = 15 * 60 * 1000;
+const _rl = new Map();
 const checkRL = ip => {
   const now = Date.now(), e = _rl.get(ip);
   if (!e || now > e.resetAt) { _rl.set(ip, { count: 1, resetAt: now + RL_WIN }); return true; }
@@ -103,7 +85,7 @@ const checkRL = ip => {
   return true;
 };
 setInterval(() => { const n = Date.now(); for (const [k, v] of _rl) if (n > v.resetAt) _rl.delete(k); }, 5 * 60 * 1000).unref();
-/* ---------- push notifications (Web Push / VAPID) ---------- */
+// Load or generate VAPID keys for Web Push API
 const vapidFile = path.join(DATA, 'vapid.json');
 let vapid;
 try { vapid = JSON.parse(fs.readFileSync(vapidFile, 'utf8')); }
@@ -111,6 +93,7 @@ catch { vapid = webpush.generateVAPIDKeys(); fs.writeFileSync(vapidFile, JSON.st
 const VAPID_SUBJECT = process.env.VAPID_SUBJECT || (SECURE ? ORIGIN : 'mailto:admin@localhost');
 webpush.setVapidDetails(VAPID_SUBJECT, vapid.publicKey, vapid.privateKey);
 
+// Send push notification to user's registered devices
 async function sendPush(userId, payload) {
   const subs = store.subsForUser(userId);
   if (!subs.length) return;
@@ -129,8 +112,7 @@ async function sendPush(userId, payload) {
   }));
 }
 
-// Rest-timer alerts: client schedules on start/extend, cancels on skip or on-screen completion ΓÇö
-// this only fires when the tab was backgrounded/suspended and never got to cancel it itself.
+// Rest timer tracking (sends push notification when timer expires)
 const restTimers = new Map(); // userId -> Timeout
 function scheduleRestTimer(userId, sec) {
   const t = restTimers.get(userId);
@@ -140,13 +122,13 @@ function scheduleRestTimer(userId, sec) {
     sendPush(userId, { title: 'Rest over ≡ƒÆ¬', body: 'Time for your next set.', tag: 'rest-timer' });
   }, sec * 1000));
 }
+// Cancel pending rest timer for user
 function cancelRestTimer(userId) {
   const t = restTimers.get(userId);
   if (t) { clearTimeout(t); restTimers.delete(userId); }
 }
 
-// "Workout planned today" reminder ΓÇö one per user per day, at their chosen time.
-// Duplicated (not imported) from frontend/src/lib/history.js effectiveRoutineId ΓÇö tiny pure helper, not worth sharing across the two runtimes.
+// Get effective routine for a date (respects day overrides)
 function effectiveRoutineId(S, iso) {
   const ov = S.dayPlan?.[iso];
   if (ov === 'rest') return null;
@@ -154,8 +136,7 @@ function effectiveRoutineId(S, iso) {
   const wd = new Date(iso + 'T12:00:00').getDay();
   return S.week?.[wd] || null;
 }
-// Computes "now" in an arbitrary IANA zone (e.g. "Europe/Lisbon") instead of the server's own ΓÇö
-// each user's reminder fires by their own clock, wherever they and their phone actually are.
+// Convert current time to user's timezone (ISO date + HH:MM)
 function userNow(tz) {
   try {
     const parts = new Intl.DateTimeFormat('en-CA', {
@@ -166,6 +147,7 @@ function userNow(tz) {
     return { date: `${g('year')}-${g('month')}-${g('day')}`, hhmm: `${g('hour')}:${g('minute')}` };
   } catch { return null; } // unknown/invalid tz string ΓÇö skip this user rather than guess
 }
+// Background job: send daily workout reminders (once per day at user's preferred time)
 setInterval(() => {
   for (const user of store.listUsers()) {
     if (!store.userHasPush(user.id)) continue;
@@ -186,8 +168,6 @@ setInterval(() => {
       tag: 'day-reminder'
     });
   }
-// Checked every 10s (not 60s) ΓÇö ticks aren't aligned to the top of the minute, so a 60s
-// interval could sit on your target minute for up to 59s before noticing. 10s caps that at ~9s.
 }, 10000).unref();
 
 /* ---------- sessions (signed cookie) ---------- */
@@ -232,7 +212,6 @@ function readSession(req) {
   if (user) user._activeCred = activeCred || null;
   return user;
 }
-// Guard for /api/admin/* ΓÇö resolves the caller and 401/403s if they aren't an admin.
 function requireAdmin(req, res) {
   const user = readSession(req);
   if (!user) { json(res, 401, { error: 'not signed in' }); return null; }
@@ -290,8 +269,6 @@ const clientIp = req => (req.headers['x-forwarded-for'] || '').split(',')[0].tri
 const b64uToBuf = s => Buffer.from(s, 'base64url');
 
 /* ---------- live presence (in-memory) ---------- */
-// Clients heartbeat /api/activity while a workout is on screen; the admin dashboard reads who's
-// live. Purely ephemeral ΓÇö never persisted. Expires shortly after the last ping.
 const presence = new Map();               // uid -> { name, exIdx, exTotal, setsDone, setsTotal, startedAt, updatedAt }
 const PRESENCE_TTL = 70000;               // ~3.5├ù the 20s client heartbeat
 function livePresence(uid) {

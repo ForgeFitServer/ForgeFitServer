@@ -13,7 +13,6 @@ import Icon from '../components/Icon.jsx'
 import { exercisePicker, confirmSheet, questionnaireEditorSheet } from '../sheets.jsx'
 import { glyphOf } from '../lib/glyphs.js'
 
-// Coach dashboard & trainee editor (English only, operator surface)
 
 const clone = o => JSON.parse(JSON.stringify(o))
 const copy = (txt, toast) => { try { navigator.clipboard?.writeText(txt) } catch { /* */ } toast('Copied ' + txt) }
@@ -294,15 +293,12 @@ export function Coach() {
 }
 
 /* == trainee editor == */
-// Helpers
 const DAY_SHORT = ['Su', 'Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa']
 const ACCENT_COLORS = ['var(--acc)', 'var(--blue)', 'var(--purple)', 'var(--orange)', 'var(--red)', 'var(--teal)']
 
-// Build a default setScheme from legacy {sets,reps,weight} or just build fresh
 const defaultScheme = (sets = 3, reps = 10, weight = 0) =>
   Array.from({ length: sets }, () => ({ r: reps, w: weight }))
 
-// Resize an image file to a max-width JPEG data-URL (aspect-ratio preserved)
 function resizeToCover(file, maxW = 600, quality = 0.78) {
   return new Promise((resolve, reject) => {
     const rd = new FileReader()

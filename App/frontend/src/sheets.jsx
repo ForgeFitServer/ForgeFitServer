@@ -37,7 +37,6 @@ function ConfirmDialog({ title, message, confirmText, cancelText, danger, onConf
     <Button variant="ghost" className="dim" onClick={close}>{cancelText || t('Cancel')}</Button>
   </div>
 }
-// Themed replace for window.confirm (callback-based, non-blocking)
 export function confirmSheet(opts) {
   ui().openSheet(close => <ConfirmDialog {...opts} close={close} />, { kind: 'center' })
 }
@@ -59,7 +58,6 @@ export function loadStarterPlan() {
 }
 
 /* == weight picker (shared: body weight + goal) == */
-// Fixed range for stable thumb position (prevents mid-drag shift)
 const W_LO = 1, W_HI = 300
 function WeightInput({ value, setValue, unit }) {
   const clamp = x => Math.max(W_LO, Math.min(W_HI, Math.round((x || 0) * 10) / 10))
@@ -129,12 +127,7 @@ export function bwSheet(opts = {}) {
 }
 
 /* == import from another app == */
-// Shows what a parsed export would actually do before anything is written. An import is
-// the one action where "just try it" is expensive — it's someone's entire training
-// history — so the numbers, the unit conversion and the exercises we couldn't recognise
-// are all on screen before the confirm button.
 function ImportSummary({ parsed, close }) {
-  const st = useStore(s => s.S)
   const isBW = parsed.kind === 'bodyweight'
   const have = isBW
     ? parsed.bodyweight.filter(b => st.bodyweight.some(x => x.d === b.d)).length
@@ -300,8 +293,6 @@ function AddToRoutine({ ex, close }) {
 export const addToRoutineSheet = ex => ui().openSheet(close => <AddToRoutine ex={ex} close={close} />)
 
 /* == custom exercises (issue #11) == */
-// Name + body part is all it takes — the exercise then behaves like any built-in one
-// (planning, logging, PRs, stats), just without an animation.
 function CustomExForm({ existing, prefill, onDone, close }) {
   const [n, setN] = useState(existing ? existing.n : (prefill || ''))
   const [bp, setBp] = useState(existing ? existing.bp : '')
@@ -367,7 +358,6 @@ export function deleteCustomEx(ex, afterDelete) {
 }
 
 /* == exercise picker == */
-// Exercises already used in your routines or past workouts (for the "Chosen" filter + a marker).
 function usageMap(st) {
   const u = {}
   st.routines.forEach(r => r.ex.forEach(e => { u[e.id] = (u[e.id] || 0) + 1 }))
@@ -465,8 +455,6 @@ function ExConfig({ ex, existing, onSave, onDelete, close }) {
 export const exConfigSheet = (ex, existing, onSave, onDelete) => ui().openSheet(close => <ExConfig ex={ex} existing={existing} onSave={onSave} onDelete={onDelete} close={close} />)
 
 /* == glyph picker == */
-// Grouped by what the glyph means for a training day, so picking one is a scan
-// of four short rows rather than a hunt through twenty loose icons.
 export const glyphPicker = (current, onPick) => {
   const cur = glyphOf(current)
   return ui().openSheet(close => <>
@@ -704,7 +692,6 @@ function TopWeight({ entryIdx, close }) {
 }
 export const topWeightSheet = entryIdx => ui().openSheet(close => <TopWeight entryIdx={entryIdx} close={close} />)
 
-// Shown when the last exercise's last set is checked — finish, or keep going.
 function WorkoutComplete({ close }) {
   return <div style={{ textAlign: 'center', padding: '8px 0' }}>
     <div style={{ fontSize: 44, display: 'flex', justifyContent: 'center', color: 'var(--acc)' }}><Icon name="checkCircle" /></div>

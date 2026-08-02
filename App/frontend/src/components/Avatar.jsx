@@ -1,7 +1,3 @@
-// Avatar: shows an uploaded profile photo when present, otherwise a deterministic
-// GitHub-style identicon derived from the user id. Fully offline — no external service.
-
-// Small, fast string hash (FNV-1a) — deterministic across sessions and devices.
 function hash(str) {
   let h = 0x811c9dc5
   for (let i = 0; i < str.length; i++) {
@@ -11,7 +7,6 @@ function hash(str) {
   return h >>> 0
 }
 
-// Build a 5x5 mirrored identicon (like GitHub). Returns { cells, color }.
 function identicon(seed) {
   const h = hash(seed || 'anon')
   const hue = h % 360

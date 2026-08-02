@@ -7,9 +7,7 @@ import { DEMO, DEMO_SEEDED } from '../lib/demo.js'
 import { MOBILE, nativeLoad, nativeSave, syncReminder } from '../lib/mobile.js'
 
 const KEY = 'gym_state_v1'
-// Demo builds are throwaway: keep state in sessionStorage so nothing a visitor does
-// (edits, new plans, weigh-ins) survives once they close the tab/browser. Normal builds
-// persist to localStorage as before.
+// Demo builds persist state in sessionStorage (ephemeral); production uses localStorage
 const STORAGE = (typeof sessionStorage !== 'undefined' && DEMO) ? sessionStorage : localStorage
 export const DEF = {
   unit: 'lb', heightUnit: 'in', restSec: 90, sound: true, lang: 'en',
@@ -20,8 +18,10 @@ export const DEF = {
 }
 const clone = o => JSON.parse(JSON.stringify(o))
 
+// Check if state has any workouts, routines, or bodyweight entries
 export const hasData = st => !!((st.workouts || []).length || (st.routines || []).length || (st.bodyweight || []).length)
 
+// Load persisted state from storage, merge with defaults
 function loadState() {
   try {
     const raw = STORAGE.getItem(KEY)
@@ -34,13 +34,13 @@ export const useStore = create((set, get) => {
   let pushTm = null
   let saveTm = null
 
-  // Mobile build: mirror the state into a file in the app's data directory (survives WebView
-  // storage eviction) and keep the native reminder schedule in step with the weekly plan.
+  // Mobile: save state to app file and keep native reminder schedule in sync
   const nativePersist = () => {
     clearTimeout(saveTm)
     saveTm = setTimeout(() => { saveTm = null; nativeSave(get().S); syncReminder(get().S) }, 800)
   }
 
+  // Save state to storage and debounce sync to backend
   const persist = (S, push = true) => {
     S._ts = Date.now()
     registerCustom(S.customEx)
@@ -53,10 +53,7 @@ export const useStore = create((set, get) => {
     }
   }
 
-  // A setting changed right before switching away/closing the tab must not get lost mid-debounce
-  // (e.g. setting the reminder time then immediately backgrounding to test it). On mobile the
-  // same applies to the file mirror — backgrounding is often the last thing before the OS
-  // kills the app.
+  // Flush pending saves on visibility change (backgrounding app or switching tabs)
   document.addEventListener('visibilitychange', () => {
     if (document.visibilityState !== 'hidden') return
     if (MOBILE && saveTm) {
@@ -76,7 +73,7 @@ export const useStore = create((set, get) => {
     user: (() => { try { return JSON.parse(localStorage.getItem('gym_user')) || null } catch { return null } })(),
     ready: false,
 
-    // Mutate a draft of S via producer fn, then persist + schedule sync.
+    // Clone state, apply mutation function, persist and schedule backend sync
     update(mut, push = true) {
       const S = clone(get().S)
       mut(S)
@@ -84,11 +81,14 @@ export const useStore = create((set, get) => {
     },
     replaceState(S, push = false) { persist(clone(S), push) },
 
+    // Guest mode: no auth required, ephemeral session
     isGuest: () => localStorage.getItem('gym_guest') === '1',
     setGuest(v) { if (v) localStorage.setItem('gym_guest', '1'); else localStorage.removeItem('gym_guest'); set({}) },
 
+    // Check if user is a coach (can manage trainees)
     isCoach: () => get().user?.coach === true,
 
+    // Update authenticated user and clear guest flag
     setUser(u) {
       if (u) { localStorage.setItem('gym_user', JSON.stringify(u)); localStorage.removeItem('gym_guest') }
       else localStorage.removeItem('gym_user')

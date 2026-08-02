@@ -5,29 +5,34 @@ import { api } from '../lib/api.js'
 import { t } from '../lib/i18n.js'
 import { useStore } from './useStore.js'
 
-// Fire-and-forget: lets the server push a "rest over" alert if this tab gets suspended
-// before the local timer completes. No-ops for guests / offline.
+// Send rest timer push notification to backend
 const pushRestTimer = sec => { if (useStore.getState().user) api('/api/push/rest-timer', { method: 'POST', body: JSON.stringify({ seconds: sec }) }).catch(() => {}) }
+// Cancel pending rest timer push notification
 const cancelPushRestTimer = () => { if (useStore.getState().user) api('/api/push/rest-timer/cancel', { method: 'POST', body: '{}' }).catch(() => {}) }
 
 let toastTm = null
 let timerInt = null
 let timerTick = null
 
+// UI state: modals, toasts, rest timer
 export const useUI = create((set, get) => ({
-  sheets: [],          // { id, render:(close)=>JSX, kind:'sheet'|'center', locked }
+  sheets: [],          // Stack of modals/sheets: { id, render:(close)=>JSX, kind:'sheet'|'center', locked }
   toastMsg: '',
-  timer: null,         // { left, total }
+  timer: null,         // Rest timer state: { left:ms, total:ms }
 
+  // Open a new sheet/modal
   openSheet(render, { kind = 'sheet', locked = false } = {}) {
     const id = uid()
     set(s => ({ sheets: [...s.sheets, { id, render, kind, locked }] }))
     const close = () => get().closeSheet(id)
     return { id, close, lock: v => set(s => ({ sheets: s.sheets.map(x => x.id === id ? { ...x, locked: v } : x) })) }
   },
+  // Close a specific sheet by ID
   closeSheet(id) { set(s => ({ sheets: s.sheets.filter(x => x.id !== id) })) },
+  // Close all sheets
   closeAll() { set({ sheets: [] }) },
 
+  // Show brief toast notification message
   toast(msg) {
     set({ toastMsg: msg })
     clearTimeout(toastTm)
