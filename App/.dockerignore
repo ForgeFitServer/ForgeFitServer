@@ -1,0 +1,7 @@
+# Build context is ./App for the web image — keep it lean.
+**/node_modules
+frontend/dist
+frontend/android
+frontend/ios
+**/*.log
+.DS_Store

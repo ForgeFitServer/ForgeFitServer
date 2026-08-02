@@ -1,0 +1,42 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1024" height="1024" viewBox="0 0 512 512">
+  <!-- Iron Forge icon for Forge Fitness Server
+       Generate platform icons + splash via `npx @capacitor/assets generate` — docs/MOBILE.md. -->
+  <defs>
+    <linearGradient id="steelGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#b8860b;stop-opacity:1" />
+      <stop offset="50%" style="stop-color:#ffd700;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#daa520;stop-opacity:1" />
+    </linearGradient>
+    <filter id="shadow" x="-50%" y="-50%" width="200%" height="200%">
+      <feDropShadow dx="2" dy="2" stdDeviation="3" flood-opacity="0.3"/>
+    </filter>
+  </defs>
+  
+  <rect width="512" height="512" fill="#0c0e12"/>
+  
+  <!-- Anvil body -->
+  <rect x="140" y="280" width="180" height="90" rx="8" fill="url(#steelGradient)" filter="url(#shadow)"/>
+  
+  <!-- Anvil horn -->
+  <ellipse cx="310" cy="305" rx="55" ry="45" fill="url(#steelGradient)" filter="url(#shadow)"/>
+  
+  <!-- Anvil feet -->
+  <rect x="170" y="360" width="25" height="45" fill="#4a4a4a"/>
+  <rect x="305" y="360" width="25" height="45" fill="#4a4a4a"/>
+  
+  <!-- Hammer head -->
+  <rect x="95" y="185" width="65" height="75" rx="5" fill="url(#steelGradient)" filter="url(#shadow)"/>
+  
+  <!-- Hammer face (striking) -->
+  <rect x="200" y="145" width="80" height="65" rx="8" fill="#ff6b35" filter="url(#shadow)"/>
+  
+  <!-- Hammer handle -->
+  <rect x="210" y="55" width="20" height="100" rx="10" fill="#8b4513"/>
+  
+  <!-- Decorative flames -->
+  <path d="M 320 110 Q 330 85 325 65 Q 338 78 333 105" fill="#ff6b35" opacity="0.8"/>
+  <path d="M 345 125 Q 355 95 350 70 Q 363 88 358 120" fill="#ff6b35" opacity="0.7"/>
+  
+  <!-- Muscle line element -->
+  <path d="M 150 220 Q 160 200 175 220" stroke="#ff6b35" stroke-width="5" fill="none" stroke-linecap="round" opacity="0.9"/>
+</svg>

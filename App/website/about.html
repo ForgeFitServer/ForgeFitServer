@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>About — Forge Fitness Server</title>
+<meta name="description" content="Forge Fitness Server: An open-source, self-hosted fitness tracking and workout planning application.">
+<meta name="theme-color" content="#0c0e12">
+<link rel="icon" type="image/png" sizes="512x512" href="icon-512.png">
+<link rel="icon" type="image/png" sizes="180x180" href="icon-180.png">
+<link rel="apple-touch-icon" href="icon-180.png">
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+<nav><div class="wrap nav-in">
+  <a class="brand" href="/">
+    <img src="icon-180.png" alt="" width="26" height="26" style="border-radius:6px">
+    Forge Fitness Server
+  </a>
+  <div class="nav-links">
+    <a href="/#features" class="hide-s">Features</a>
+    <a href="/#screens" class="hide-s">Screenshots</a>
+    <a href="/#demo" class="hide-s">Demo</a>
+    <a href="docs.html">Docs</a>
+    <a href="about.html" class="hide-s">About</a>
+    <a href="https://github.com/ForgeFitServer/ForgeFitServer" rel="noopener"><span data-gh="stars">GitHub</span></a>
+    <a class="cta" href="/#download">Download</a>
+  </div>
+</div></nav>
+
+<main class="wrap prose">
+  <h1>About Forge Fitness Server</h1>
+  <p class="lead">Forge Fitness Server (FFS) is an open-source fitness tracking application built for privacy and self-hosting.</p>
+
+  <p>FFS provides a comprehensive solution for personal fitness tracking with no account requirements, no subscription fees, and no telemetry. All your training data stays on your own server.</p>
+
+  <p>The application features a guided workout flow, exercise library with body mapping, progress tracking, and support for 12 languages. It's a self-hosted web application.</p>
+
+  <p>Forge Fitness Server is distributed under the <b>AGPL-3.0</b> license. This ensures that your training data is truly yours, the software remains open and inspectable, and improvements benefit the entire community.</p>
+
+  <p>Whether you're self-hosting on your own server or running it in the cloud, FFS puts you in control of your fitness data.</p>
+
+  <p class="who" style="color:var(--faint)">An open-source community project · <a href="https://github.com/ForgeFitServer/ForgeFitServer" rel="noopener">Contribute on GitHub</a></p>
+
+  <h2>Milestones</h2>
+  <!-- The releases below are a static fallback: site.js replaces them with the live list
+       of published GitHub releases, so this page never needs manual updating. Only the
+       first entry (pre-GitHub) is permanent. -->
+  <ul class="tl" id="milestones">
+    <li><b>The personal app</b><span class="when">early summer 2026</span>
+      <p>A hand-written vanilla-JS page on my own server. One user, zero ambitions.</p></li>
+    <li data-fallback><b>v1.0.0 — open-sourced</b><span class="when">July 20, 2026</span>
+      <p>Docker-Compose self-hosting, passkey profiles, guided workouts, 1,324-exercise
+         library. AGPL from day one.</p></li>
+    <li data-fallback><b>Every release since</b><span class="when">ongoing</span>
+      <p>See the full list on <a href="https://github.com/ForgeFitServer/ForgeFitServer/releases" rel="noopener">GitHub → Releases</a>.</p></li>
+  </ul>
+
+  <h2>Principles</h2>
+  <ul>
+    <li><b>Your data is yours.</b> Local-first, one-file backups, no lock-in — leaving
+        Forge Fitness Server must always be one export away.</li>
+    <li><b>No telemetry, ever.</b> If a feature needs analytics to justify itself, it
+        doesn't ship.</li>
+    <li><b>Dependency-light.</b> The backend is one Node file with a single dependency;
+        the frontend is React, a router and a store. Small enough to actually audit.</li>
+    <li><b>Open source that stays open.</b> AGPL-3.0, so every fork and every hosted
+        version owes its code back to everyone.</li>
+  </ul>
+
+  <div class="hero-btns" style="justify-content:flex-start;margin:30px 0 10px">
+    <a class="btn" href="/#download">Get Forge Fitness Server</a>
+    <a class="btn ghost" href="https://github.com/ForgeFitServer/ForgeFitServer" rel="noopener">Star it on GitHub</a>
+  </div>
+</main>
+
+<footer><div class="wrap foot">
+  <span>Forge Fitness Server · AGPL-3.0 · © 2026</span>
+  <div class="links">
+    <a href="docs.html">Docs</a>
+    <a href="about.html" class="hide-s">About</a>
+    <a href="https://github.com/ForgeFitServer/ForgeFitServer" rel="noopener">GitHub</a>
+    <a href="https://forgefitserver.github.io/ForgeFitServer/" rel="noopener">Live demo</a>
+  </div>
+</div></footer>
+
+<script src="site.js" defer></script>
+</body>
+</html>

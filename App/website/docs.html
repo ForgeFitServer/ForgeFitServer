@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Docs — Forge Fitness Server</title>
+<meta name=\"description\" content=\"Self-host Forge Fitness Server with Docker, import your training history, manage backups, and deploy it yourself.\">
+<meta name="theme-color" content="#0c0e12">
+<link rel="icon" type="image/png" sizes="512x512" href="icon-512.png">
+<link rel="icon" type="image/png" sizes="180x180" href="icon-180.png">
+<link rel="apple-touch-icon" href="icon-180.png">
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+<nav><div class="wrap nav-in">
+  <a class="brand" href="/">
+    <img src="icon-180.png" alt="" width="26" height="26" style="border-radius:6px">
+    Forge Fitness Server
+  </a>
+  <div class="nav-links">
+    <a href="/#features" class="hide-s">Features</a>
+    <a href="/#screens" class="hide-s">Screenshots</a>
+    <a href="/#demo" class="hide-s">Demo</a>
+    <a href="docs.html">Docs</a>
+    <a href="about.html" class="hide-s">About</a>
+    <a href="https://github.com/forgefitserver/ForgeFitServer" rel="noopener"><span data-gh="stars">GitHub</span></a>
+    <a class="cta" href="/#download">Download</a>
+  </div>
+</div></nav>
+
+<main class="wrap prose">
+  <h1>Docs</h1>
+  <p class="lead">Everything you need to get Forge Fitness Server running — on a phone, or on your own
+     server. The deeper, maintainer-level docs live
+     <a href="https://github.com/forgefitserver/ForgeFitServer/tree/main/docs" rel="noopener">in the repository</a>.</p>
+
+  <div class="toc">
+    <a href="#selfhost">Self-hosting</a>
+    <a href="#import">Import your history</a>
+    <a href="#backup">Backups</a>
+    <a href="#build">Build it yourself</a>
+    <a href="#faq">FAQ</a>
+  </div>
+
+  <h2 id="selfhost">Self-host with Docker</h2>
+  <p>The self-hosted flavor adds passkey profiles, sync across devices, and (optionally) an
+     admin dashboard. You need <a href="https://docs.docker.com/get-docker/" rel="noopener">Docker</a>
+     with Compose:</p>
+    <pre><code>git clone https://github.com/forgefitserver/ForgeFitServer
+cd ForgeFitServer
+cp .env.example .env
+docker compose pull    # prebuilt images (amd64 + arm64) — skip to build from source
+docker compose up -d</code></pre>
+  <p>Open <code>http://localhost:8080</code>, tap <b>Create profile</b>, and you're in. The
+     first launch downloads the exercise media (~140&nbsp;MB) once.</p>
+  <div class="note">Want it reachable from your phone with passkeys? You'll need an HTTPS
+    domain — a two-line change in <code>.env</code>. The full guide, including reverse-proxy
+    examples and the invite-only/admin options, is in
+    <a href="https://github.com/forgefitserver/ForgeFitServer/blob/main/docs/SELF_HOSTING.md" rel="noopener">docs/SELF_HOSTING.md</a>.</div>
+
+  <h2 id="import">Import your training history</h2>
+  <p>Coming from another tracker? <b>Settings → Data → Import from another app</b> reads:</p>
+  <ul>
+    <li><b>FitNotes</b> (both the Android and the FitNotes 2 iOS export)</li>
+    <li><b>Strong</b> and <b>Hevy</b> (CSV exports — session lengths carry over, so the
+        activity heatmap fills in properly)</li>
+    <li><b>Apple Health</b> (body-weight history from the XML export)</li>
+    <li>…and anything else with date, exercise-name and weight/reps columns</li>
+  </ul>
+  <p>Exercise names are matched against the 1,324-exercise library; anything genuinely
+     ambiguous becomes one of your own custom exercises instead of being guessed at. A summary
+     shows exactly what will happen before anything is written, and importing is idempotent —
+     running it twice never duplicates a workout.</p>
+
+  <h2 id="backup">Backups</h2>
+  <p><b>Settings → Data → Export backup (JSON)</b> writes your entire log — plan, workouts, weights, settings — into one file that downloads to your computer. <b>Import backup</b> restores it anywhere: another browser, your self-hosted instance, or a fresh install. That file is the whole point of Forge Fitness Server — your training log as a file <i>you</i> own.</p>
+
+  <h2 id="build">Build it yourself</h2>
+  <p>The web app is built from the public repo:</p>
+  <ul>
+    <li><b>Web / self-host:</b> <code>docker compose up -d --build</code> builds the frontend
+        inside the container — no local Node needed.</li>
+  </ul>
+
+  <h2 id="faq">FAQ</h2>
+  <h3>Is it really free?</h3>
+  <p>Yes — free as in cost <i>and</i> as in freedom (AGPL-3.0). No pro tier, no locked
+     features, no ads, and the license keeps every fork open source too.</p>
+  <h3>What data does Forge Fitness Server collect?</h3>
+  <p>None. There is no telemetry, no analytics, no crash reporting. A self-hosted instance talks only to your own server. The only external network traffic is fetching exercise media from a CDN.</p>
+
+  <h3>Where does the exercise database come from?</h3>
+  <p>From <a href="https://github.com/hasaneyldrm/exercises-dataset" rel="noopener">hasaneyldrm/exercises-dataset</a>
+     (CC-licensed): 1,324 exercises with animations and instructions in 10 languages.</p>
+</main>
+
+<footer><div class="wrap foot">
+  <span>Forge Fitness Server · AGPL-3.0 · © 2026</span>
+  <div class="links">
+    <a href="docs.html">Docs</a>
+    <a href="about.html" class="hide-s">About</a>
+    <a href="https://github.com/forgefitserver/ForgeFitServer" rel="noopener">GitHub</a>
+    <a href="https://forgefitserver.github.io/ForgeFitServer/" rel="noopener">Live demo</a>
+  </div>
+</div></footer>
+
+<script src="site.js" defer></script>
+</body>
+</html>

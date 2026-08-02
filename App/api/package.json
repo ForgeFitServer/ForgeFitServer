@@ -1,0 +1,16 @@
+{
+  "name": "ffs-api",
+  "description": "Forge Fitness Server API",
+  "version": "1.2.2",
+  "private": true,
+  "type": "module",
+  "main": "server.js",
+  "license": "AGPL-3.0-or-later",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "dependencies": {
+    "@simplewebauthn/server": "^13.1.1",
+    "web-push": "^3.6.7"
+  }
+}
