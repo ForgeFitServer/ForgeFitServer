@@ -31,6 +31,8 @@ export function parseCSV(text) {
 
 const norm = h => h.toLowerCase().replace(/[^a-z0-9]+/g, ' ').trim()
 
+// Map column headers to internal fields with aliases
+const COLUMNS = [
   ['exercise', ['exercise', 'exercise name', 'exercise title']],
   ['date', ['date', 'workout date']],
   ['startTime', ['start time']],

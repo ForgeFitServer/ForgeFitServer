@@ -30,3 +30,6 @@ export const gifSrc = ex => GIF_BASE + ex.gif
 
 // Check if exercise is cardio (vs strength/conditioning)
 export const isCardio = idOrEx => (typeof idOrEx === 'string' ? EXIDX[idOrEx] : idOrEx)?.bp === 'cardio'
+
+// Combine all available exercises (dataset + user-created custom exercises)
+export const allExercises = (state) => [...EXDB, ...(state?.customEx || [])]

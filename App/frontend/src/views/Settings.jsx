@@ -125,7 +125,7 @@ export default function Settings() {
         coach: p?.coach || '',
         dayIds: p?.dayIds || []
       }))
-    })
+    }
     const json = JSON.stringify(exportData, null, 2)
     const name = 'ffs-backup-' + todayISO() + '.json'
     // Mobile uses OS share sheet; desktop downloads file
