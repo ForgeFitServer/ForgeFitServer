@@ -2,6 +2,13 @@
 
 A minimal, self-hosted, open-source fitness tracking server with workout planning, exercise library, and progress analytics.
 
+<style>
+table {
+    padding: 0;
+    border: transparent;
+    vertical-align: bottom;
+}
+</style>
 <div align="center">
 <table>
 <tr>
