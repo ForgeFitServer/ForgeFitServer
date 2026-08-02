@@ -5,18 +5,36 @@ A minimal, self-hosted, open-source fitness tracking server with workout plannin
 <style>
 table {
     padding: 0;
-    border: transparent;
-    vertical-align: bottom;
+    border: none;
+    border-collapse: collapse;
+}
+table td {
+    border: none;
+    padding: 0;
+    vertical-align: top;
+}
+table img {
+    display: block;
+}
+table sub {
+    display: block;
 }
 </style>
 <div align="center">
 <table>
 <tr>
-<td align="center"><img src="examples/1.png" alt="Home" width="230"><br><sub><b>Home</b></sub></td>
-<td align="center"><img src="examples/2.png" alt="Workout" width="230"><br><sub><b>Menu Options</b></sub></td>
-<td align="center"><img src="examples/3.png" alt="Stats" width="230"><br><sub><b>Stats</b></sub></td>
-<td align="center"><img src="examples/4.png" alt="Workout" width="230"><br><sub><b>Workout</b></sub></td>
-<td align="center"><img src="examples/5.png" alt="Coach" width="230"><br><sub><b>Coach</b></sub></td>
+<td align="center"><img src="examples/1.png" alt="Home" width="230"></td>
+<td align="center"><img src="examples/2.png" alt="Workout" width="230"></td>
+<td align="center"><img src="examples/3.png" alt="Stats" width="230"></td>
+<td align="center"><img src="examples/4.png" alt="Workout" width="230"></td>
+<td align="center"><img src="examples/5.png" alt="Coach" width="230"></td>
+</tr>
+<tr>
+<td align="center"><sub><b>Home</b></sub></td>
+<td align="center"><sub><b>Menu Options</b></sub></td>
+<td align="center"><sub><b>Stats</b></sub></td>
+<td align="center"><sub><b>Workout</b></sub></td>
+<td align="center"><sub><b>Coach</b></sub></td>
 </tr>
 </table>
 </div>
