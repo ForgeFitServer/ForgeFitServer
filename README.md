@@ -1,45 +1,25 @@
 # Forge Fitness Server (FFS)
 
-A minimal, self-hosted, open-source fitness tracking server with workout planning, exercise library, and progress analytics.
-
-<style>
-table {
-    padding: 0;
-    border: none;
-    border-collapse: collapse;
-}
-table td {
-    border: none;
-    padding: 0;
-    vertical-align: top;
-}
-table img {
-    display: block;
-}
-table sub {
-    display: block;
-}
-</style>
 <div align="center">
-<table>
+<table style="padding: 0; border: none; border-collapse: collapse;">
 <tr>
-<td align="center"><img src="examples/1.png" alt="Home" width="230"></td>
-<td align="center"><img src="examples/2.png" alt="Workout" width="230"></td>
-<td align="center"><img src="examples/3.png" alt="Stats" width="230"></td>
-<td align="center"><img src="examples/4.png" alt="Workout" width="230"></td>
-<td align="center"><img src="examples/5.png" alt="Coach" width="230"></td>
+<td align="center" style="vertical-align: top;"><img src="examples/1.png" alt="Home" width="230" style="display: block;"></td>
+<td align="center" style="vertical-align: top;"><img src="examples/2.png" alt="Workout" width="230" style="display: block;"></td>
+<td align="center" style="vertical-align: top;"><img src="examples/3.png" alt="Stats" width="230" style="display: block;"></td>
+<td align="center" style="vertical-align: top;"><img src="examples/4.png" alt="Workout" width="230" style="display: block;"></td>
+<td align="center" style="vertical-align: top;"><img src="examples/5.png" alt="Coach" width="230" style="display: block;"></td>
 </tr>
 <tr>
-<td align="center"><sub><b>Home</b></sub></td>
-<td align="center"><sub><b>Menu Options</b></sub></td>
-<td align="center"><sub><b>Stats</b></sub></td>
-<td align="center"><sub><b>Workout</b></sub></td>
-<td align="center"><sub><b>Coach</b></sub></td>
+<td align="center" style="border: none; padding: 0;"><sub style="display: block;"><b>Home</b></sub></td>
+<td align="center" style="border: none; padding: 0;"><sub style="display: block;"><b>Menu Options</b></sub></td>
+<td align="center" style="border: none; padding: 0;"><sub style="display: block;"><b>Stats</b></sub></td>
+<td align="center" style="border: none; padding: 0;"><sub style="display: block;"><b>Workout</b></sub></td>
+<td align="center" style="border: none; padding: 0;"><sub style="display: block;"><b>Coach</b></sub></td>
 </tr>
 </table>
 </div>
 
-
+A minimal, self-hosted, open-source fitness tracking server with workout planning, exercise library, and progress analytics.
 
 **FFS** is designed for:
 - Personal fitness tracking and workout planning
