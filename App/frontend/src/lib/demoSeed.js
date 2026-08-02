@@ -1,8 +1,3 @@
-// The example profile behind the demo build (see demo.js). Imported dynamically, so it stays
-// out of the bundle self-hosters ship.
-//
-// Multiple demo variants showcase different user profiles: strength-focused, hypertrophy-focused,
-// and customized theme/settings. Each variant uses real exercises extracted from user data.
 import { isoOf, uid } from './format.js'
 
 // Deterministic PRNG — the demo should look the same on every visit and in screenshots.
@@ -52,7 +47,7 @@ const ARM_EXERCISES = [
 const VARIANT_STRENGTH = {
   id: 1,
   name: 'Strength Builder',
-  settings: { unit: 'lb', theme: 'dark', accent: 'lime', weightUnit: 'lb', heightUnit: 'in' },
+  settings: { unit: 'lb', theme: 'dark', accent: 'orange', weightUnit: 'lb', heightUnit: 'in' },
   routines: [
     { id: uid(), name: 'Upper Power', emoji: 'barbell', ex: [
       { id: '0025', sets: 5, reps: 5, weight: 0 },         // barbell bench 5x5
@@ -66,11 +61,11 @@ const VARIANT_STRENGTH = {
     ]},
   ],
   weekPlan: { 1: null, 3: null },  // filled after routine generation
-  progression: { '0025': [155, 5], '0032': [225, 10], '0293': [80, 2], '0405': [50, 2], '0447': [100, 3] },
-  startBW: 185,
-  targetBW: 185,
-  endBW: 188,  // lean bulk
-  weeksBack: 5,
+  progression: { '0025': [125, 5], '0032': [185, 10], '0293': [65, 2], '0405': [40, 2], '0447': [80, 3] },
+  startBW: 150,
+  targetBW: 152,
+  endBW: 151,  // lean maintenance
+  weeksBack: 6,
   sessionsPerWeek: 4,
 }
 
@@ -107,11 +102,11 @@ const VARIANT_HYPERTROPHY = {
     ]},
   ],
   weekPlan: { 1: null, 3: null, 5: null },  // filled after routine generation
-  progression: { '0025': [135, 2], '0047': [95, 1.5], '0289': [45, 1], '0032': [185, 5], '0203': [120, 2], '0405': [40, 1] },
-  startBW: 175,
-  targetBW: 190,
-  endBW: 178,  // small deficit at end
-  weeksBack: 5,
+  progression: { '0025': [105, 2], '0047': [75, 1.5], '0289': [35, 1], '0032': [145, 5], '0203': [100, 2], '0405': [32, 1] },
+  startBW: 148,
+  targetBW: 160,
+  endBW: 152,  // small deficit at end
+  weeksBack: 6,
   sessionsPerWeek: 3,
 }
 
@@ -135,11 +130,11 @@ const VARIANT_LIGHT_THEME = {
   startBW: 82,
   targetBW: 78,
   endBW: 79,
-  weeksBack: 5,
+  weeksBack: 6,
   sessionsPerWeek: 4,
 }
 
-const VARIANTS = [VARIANT_STRENGTH, VARIANT_HYPERTROPHY, VARIANT_LIGHT_THEME]
+const VARIANTS = [VARIANT_STRENGTH, VARIANT_STRENGTH, VARIANT_HYPERTROPHY, VARIANT_HYPERTROPHY, VARIANT_LIGHT_THEME]
 
 function buildDemoVariant(variant) {
   const rnd = rng(variant.id * 1000 + 20260724)
@@ -165,8 +160,9 @@ function buildDemoVariant(variant) {
     const weekIdx = Math.floor((day - start) / (7 * 86400000))
     const p = Math.min(1, weekIdx / variant.weeksBack)
 
-    // Weigh-ins: twice per week
-    if (day.getDay() === 1 || day.getDay() === 4) {
+    // Weigh-ins: multiple times per week (Mon, Wed, Fri, Sun) for more detailed tracking
+    const dayOfWeekNum = day.getDay()
+    if (dayOfWeekNum === 1 || dayOfWeekNum === 3 || dayOfWeekNum === 5 || dayOfWeekNum === 0) {
       const trend = variant.startBW + (variant.endBW - variant.startBW) * p
       const w = trend + (rnd() - 0.5) * 0.5
       bodyweight.push({ d: iso, w: Math.round(w * 10) / 10, t: at(day, 7, 30) })

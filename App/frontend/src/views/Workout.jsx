@@ -55,6 +55,7 @@ function Elapsed({ start }) {
 /* ---------- one exercise block (strength: weight×reps · cardio: duration+speed) ---------- */
 function ExerciseBlock({ entryIdx, compact, onToggle, onField, onBumpAll, onAddSet, onRemoveSet }) {
   const S = useStore(s => s.S)
+  const update = useStore(s => s.update)
   const entry = S.active.entries[entryIdx]
   const ex = EXIDX[entry.id]
   const cardio = isCardio(ex)
@@ -64,7 +65,7 @@ function ExerciseBlock({ entryIdx, compact, onToggle, onField, onBumpAll, onAddS
     ? Math.max(...last.sets.map(s => s.w)) + 2.5 : null
   const col1 = cardio ? { f: 'min', step: 1, dec: false, hd: t('Duration (min)') } : { f: 'w', step: 2.5, dec: true, hd: t('Weight ({0})', S.unit) }
   const col2 = cardio ? { f: 'speed', step: 0.5, dec: true, hd: t('Speed (km/h)') } : { f: 'r', step: 1, dec: false, hd: t('Reps') }
-  const trackRpe = !cardio && entry.target.trackRpe
+  const trackRpe = !cardio && (entry.trackRpe ?? entry.target.trackRpe)
   const col3 = trackRpe ? { f: 'rpe', step: 1, dec: false, hd: t('RPE (1-10)') } : null
   // Uses the shared stepper markup so a set row picks up the same control styling
   // as every other +/- field in the app.
@@ -96,6 +97,7 @@ function ExerciseBlock({ entryIdx, compact, onToggle, onField, onBumpAll, onAddS
       {cardio && <span className="tag acc"><Icon name="figureRun" />{t('Cardio')}</span>}
       <span className="tag">{t(ex.tg || ex.bp)}</span><span className="tag">{t(ex.eq)}</span>
       {best > 0 && <span className="tag">{t('Best:')} {fmtNum(best)} {S.unit}</span>}
+      {!cardio && <button className={'tag' + (trackRpe ? ' acc' : '')} style={{ border: 'none', cursor: 'pointer' }} onClick={() => update(s => { s.active.entries[entryIdx].trackRpe = !trackRpe })} title={trackRpe ? t('RPE enabled') : t('Click to enable RPE')}><Icon name={trackRpe ? 'check' : 'plus'} /> RPE</button>}
     </div>
     {last && <div className="small dim" style={{ marginBottom: 4 }}>{t('Last time')} ({fmtDate(last.d)}): {last.sets.map(s => setLabel(entry.id, s)).join(', ')}</div>}
     {hint && <button className="tag acc" style={{ border: 'none', textAlign: 'left' }} onClick={() => { onBumpAll('w', hint); useUI.getState().toast(t('Weights bumped to {0}', fmtNum(hint) + ' ' + S.unit)) }}><Icon name="lightbulb" />{t('Last time you hit all reps — try {0}', fmtNum(hint) + ' ' + S.unit)}</button>}
@@ -138,8 +140,13 @@ function ActiveWorkout() {
   const bumpAll = (idx, field, v) => mutEntry(idx, e => e.sets.forEach(s => { if (!s.done) s[field] = v }))
   const addSet = idx => mutEntry(idx, e => {
     const l = e.sets[e.sets.length - 1]
+    const trackRpeForEntry = e.trackRpe ?? e.target.trackRpe
     if (isCardio(e.id)) e.sets.push({ min: l ? l.min : (e.target.min || 20), speed: l ? l.speed : (e.target.speed || 8), done: false })
-    else e.sets.push({ w: l ? l.w : 0, r: l ? l.r : e.target.reps, done: false })
+    else {
+      const newSet = { w: l ? l.w : 0, r: l ? l.r : e.target.reps, done: false }
+      if (trackRpeForEntry && l?.rpe) newSet.rpe = l.rpe
+      e.sets.push(newSet)
+    }
   })
   const removeSet = idx => mutEntry(idx, e => { if (e.sets.length > 1) e.sets.pop() })
 
